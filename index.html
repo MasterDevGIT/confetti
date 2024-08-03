@@ -3,124 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Confetti.</title>
+    <title>Confetti Explosion</title>
     <style>
         body {
             font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            height: 100vh;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #1a1a1a;
-            color: #ffffff;
-            overflow: hidden;
+            background-color: #333;
         }
         button {
-            font-size: 1.2em;
-            padding: 15px 30px;
+            padding: 16px 32px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
             cursor: pointer;
-            background-color: #4CAF50;
-            color: white;
             border: none;
-            border-radius: 5px;
-            transition: all 0.1s ease;
-            box-shadow: 0 5px 0 #45a049;
-            outline: none;
+            border-radius: 10px;
+            background-color: #4CAF50;
+            transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
         }
         button:hover {
-            background-color: #45a049;
+            background-color: #3e8e41;
         }
         button:active {
-            transform: translateY(5px);
-            box-shadow: 0 0 0 #45a049;
+            transform: scale(0.9);
         }
-        .confetti {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background-color: #f2d74e;
+        button.clicked {
+            animation: pulse 0.5s ease-in-out;
         }
-        #counter {
-            margin-top: 20px;
-            font-size: 1.2em;
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes shine {
+            0% {
+                background-position: -100%;
+            }
+            100% {
+                background-position: 100%;
+            }
         }
     </style>
 </head>
 <body>
-    <button id="confettiButton">Press for confetti🎉</button>
-    <div id="counter">Confetti launches: 0</div>
+    <button id="confetti-btn" class="btn">Explode Confetti!<div class="shine"></div></button>
 
     <script>
-        let confettiCount = parseInt(localStorage.getItem('confettiCount') || '0');
-        const counterDisplay = document.getElementById('counter');
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/canvas-confetti@1.5.1/dist/confetti.browser.js';
+        script.onload = function() {
+            const confettiBtn = document.getElementById('confetti-btn');
 
-        function updateCounter(count) {
-            confettiCount = count;
-            counterDisplay.textContent = `Confetti launches: ${confettiCount}`;
-            localStorage.setItem('confettiCount', confettiCount.toString());
-        }
-
-        function createConfetti() {
-            const colors = ['#f2d74e', '#95c3de', '#ff9a91', '#f2a2e8', '#cefd7e'];
-            const confettiPieces = 150;
-
-            for (let i = 0; i < confettiPieces; i++) {
-                const confetti = document.createElement('div');
-                confetti.classList.add('confetti');
-                
-                confetti.style.left = '50%';
-                confetti.style.bottom = '0';
-                
-                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.transform = 'translate(-50%, 0) rotate(' + Math.random() * 360 + 'deg)';
-
-                document.body.appendChild(confetti);
-
-                animateConfetti(confetti);
-            }
-
-            updateCounter(confettiCount + 1);
-        }
-
-        function animateConfetti(confetti) {
-            const animationDuration = Math.random() * 2 + 1;
-            const spreadDistance = Math.random() * 300 - 150;
-            const riseHeight = -(Math.random() * 300 + 200);
-
-            confetti.animate([
-                { transform: 'translate(-50%, 0) rotate(0deg)', opacity: 1 },
-                { transform: `translate(calc(-50% + ${spreadDistance}px), ${riseHeight}px) rotate(${Math.random() * 720 - 360}deg)`, opacity: 0 }
-            ], {
-                duration: animationDuration * 1000,
-                easing: 'cubic-bezier(.25, .46, .45, .94)',
-                fill: 'forwards'
-            }).onfinish = () => confetti.remove();
-        }
-
-        const button = document.getElementById('confettiButton');
-        button.addEventListener('click', (e) => {
-            createConfetti();
-            
-            button.style.transform = 'translateY(5px)';
-            button.style.boxShadow = '0 0 0 #45a049';
-            
-            setTimeout(() => {
-                button.style.transform = '';
-                button.style.boxShadow = '';
-            }, 100);
-        });
-
-        // Initialize counter display
-        updateCounter(confettiCount);
-
-        // Listen for storage events (changes in other tabs)
-        window.addEventListener('storage', (event) => {
-            if (event.key === 'confettiCount') {
-                updateCounter(parseInt(event.newValue));
-            }
-        });
+            confettiBtn.addEventListener('click', () => {
+                confettiBtn.classList.add('clicked');
+                setTimeout(() => {
+                    confettiBtn.classList.remove('clicked');
+                }, 500);
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            });
+        };
+        document.head.appendChild(script);
     </script>
 </body>
 </html>
